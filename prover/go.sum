@@ -25,6 +25,8 @@ github.com/blang/semver/v4 v4.0.0 h1:1PFHFE6yCCTv8C1TeyNNarDzntLi7wMI5i/pzqYIsAM
 github.com/blang/semver/v4 v4.0.0/go.mod h1:IbckMUScFkM3pff0VJDNKRiT6TG/YpiHIM2yvyW5YoQ=
 github.com/brevis-network/brevis-sdk v0.3.10 h1:7AApOtRCMFsngzMAp028l8SQqDD6rVJ0zRRCJTr0TZA=
 github.com/brevis-network/brevis-sdk v0.3.10/go.mod h1:fqMKk3yt4mKo897T2L1kOf8xgydZPZbR2+XarmgwovE=
+github.com/brevis-network/brevis-sdk v0.3.11 h1:g1Yo1j/HxaoFgg1xEPG7EEuny8GNMTIFc1DLqRHV0fg=
+github.com/brevis-network/brevis-sdk v0.3.11/go.mod h1:fqMKk3yt4mKo897T2L1kOf8xgydZPZbR2+XarmgwovE=
 github.com/brevis-network/zk-hash v0.0.0-20241108052253-b7ab3c6a195b h1:5BRwAPIzME7+MMtUKglhRo9JHYSIB+ls7U0v0cU+Tus=
 github.com/brevis-network/zk-hash v0.0.0-20241108052253-b7ab3c6a195b/go.mod h1:fMfTUW6bGRcOk8Vm0c82Ob8uEWysWsev9d4mn609skg=
 github.com/btcsuite/btcd/btcec/v2 v2.3.4 h1:3EJjcN70HCu/mwqlUsGK8GcNVyLVxFDlWurTXGPFfiQ=
