@@ -12,13 +12,10 @@ import (
 	v1 "github.com/attestantio/go-eth2-client/api/v1"
 	"github.com/attestantio/go-eth2-client/spec"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
-	"github.com/brevis-network/brevis-sdk/sdk"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/fatih/color"
 )
-
-var minimumVolume = sdk.ConstUint248(500000000) // minimum 500 USDC
 
 type ValidatorWithIndex = struct {
 	Validator *phase0.Validator

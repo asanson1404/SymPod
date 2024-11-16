@@ -56,6 +56,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
+	github.com/hashicorp/go-uuid v1.0.1 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/holiman/uint256 v1.3.1 // indirect
 	github.com/huandu/go-clone v1.6.0 // indirect
@@ -85,6 +86,7 @@ require (
 	github.com/r3labs/sse/v2 v2.10.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
+	github.com/rs/cors v1.7.0 // indirect
 	github.com/rs/zerolog v1.31.0 // indirect
 	github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
