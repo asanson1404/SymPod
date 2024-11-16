@@ -11,7 +11,7 @@ contract Sympod is BrevisApp, ERC20, Ownable {
     /* ============== EVENTS ============== */
 
     event Restaked(address indexed staker, address indexed symbioticVaultAddr);
-    event VerificationRequired(bytes indexed pubkey, bytes32 depositDataRoot, address sympodAddr);
+    event VerificationRequired(bytes pubkey, bytes32 depositDataRoot, address indexed sympodAddr);
 
     /* ============== STORAGE ============== */
 
@@ -31,7 +31,7 @@ contract Sympod is BrevisApp, ERC20, Ownable {
     /* ============== EXTERNAL FUNCTIONS ============== */
 
     function restake(address symbioticVaultAddr) external payable {
-        require(msg.value == 32 ether, "can only restake 32 ETH");
+        require(msg.value == 0.032 ether, "can only restake 0.032 ETH");
         stakerToStakedAmount[msg.sender] += msg.value;
         emit Restaked(msg.sender, symbioticVaultAddr);
     }
@@ -40,7 +40,8 @@ contract Sympod is BrevisApp, ERC20, Ownable {
         bytes calldata pubkey,
         bytes32 depositDataRoot
     ) external {
-        emit VerificationRequired(pubkey, depositDataRoot, address(this));
+        // We take in the frame of the demo the withdrawal address of a contract having one validator
+        emit VerificationRequired(pubkey, depositDataRoot, 0x21E2a892DDc9BD3c0466299172F8b1D8026925ED);
     }
 
     function setVkHash(bytes32 _vkHash) external onlyOwner {
@@ -62,6 +63,10 @@ contract Sympod is BrevisApp, ERC20, Ownable {
         require(vkHash == _vkHash, "invalid vk");
         address withdrawalAddr = decodeOutput(_circuitOutput);
         require(withdrawalAddr == address(this), "invalid withdrawal address");
+        require(address(this).balance >= 0.032 ether, "sympod balance must be 0.032 ETH");
+        
+        // TODO: Should deposit 32 ETH in the Beacon Chain using the proving validator deposit data
+
         _mint(address(this), 32 ether);
         approve(symbioticVault, 32 ether);
         SymbioticVaultMock(symbioticVault).deposit(32 ether);
