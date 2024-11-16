@@ -1,16 +1,20 @@
 package circuits
 
 import (
-	//"context"
+	"context"
 	"fmt"
+	"log"
 	"os"
+	"proof-generator/clients"
+	"proof-generator/credentials"
 
 	"github.com/brevis-network/brevis-sdk/sdk"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/joho/godotenv"
 )
 
 // Context
-// var ctx = context.Background()
+var ctx = context.Background()
 
 // Load environment variables from .env file
 var _ = godotenv.Load()
@@ -19,12 +23,12 @@ var _ = godotenv.Load()
 var beaconNodeUrl = os.Getenv("BEACON_NODE_URL")
 var ethNodeUrl = os.Getenv("ETH_NODE_URL")
 
-var USDCTokenAddr = sdk.ConstUint248("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
-var minimumVolume = sdk.ConstUint248(500000000) // minimum 500 USDC
+// Get ethereum and beacon clients
+var eth, beaconClient, chainId, _ = clients.GetClients(ctx, ethNodeUrl, beaconNodeUrl, true)
 
-type AppCircuit struct {
-	//SymPodAddr sdk.Uint248
-}
+var symPod = sdk.ConstUint248("0xEF1E121CB094023a453552B6226714ef275EA193")
+
+type AppCircuit struct{}
 
 var _ sdk.AppCircuit = &AppCircuit{}
 
@@ -33,35 +37,40 @@ func (c *AppCircuit) Allocate() (maxReceipts, maxSlots, maxTransactions int) {
 }
 
 func (c *AppCircuit) Define(api *sdk.CircuitAPI, in sdk.DataInput) error {
-	fmt.Println("Define")
-	fmt.Println("Beacon Node URL:", beaconNodeUrl)
-	fmt.Println("Eth Node URL:", ethNodeUrl)
-	fmt.Println("USDCTokenAddr:", USDCTokenAddr)
 
 	receipts := sdk.NewDataStream(api, in.Receipts)
 	receipt := sdk.GetUnderlying(receipts, 0)
 
+	fmt.Println("SymPod Address:", receipt.Fields[0].Contract)
+
+	// Fetch validator credentials
+	credentials, err := credentials.GenerateValidatorProof(ctx, "0x21E2a892DDc9BD3c0466299172F8b1D8026925ED", eth, chainId, beaconClient, nil, true)
+	if err != nil {
+		log.Fatal("Error generating validator proof:", err)
+	}
+	fmt.Printf("Credentials: %+v\n", credentials)
+	withdrawalAddr := common.BytesToAddress(credentials[12:])
+	fmt.Printf("withdrawalAddr: %+v\n", withdrawalAddr)
+
 	// Check logic
-	// The first field exports `from` parameter from Transfer Event
-	// It should use the second topic in Transfer Event log
-	api.Uint248.AssertIsEqual(receipt.Fields[0].Contract, USDCTokenAddr)
+	// The first field exports `symPod addr` parameter from the Event
+	api.Uint248.AssertIsEqual(receipt.Fields[0].Contract, symPod)
 	api.Uint248.AssertIsEqual(receipt.Fields[0].IsTopic, sdk.ConstUint248(1))
 	api.Uint248.AssertIsEqual(receipt.Fields[0].Index, sdk.ConstUint248(1))
-
-	// Make sure two fields uses the same log to make sure account address linking with correct volume
 	api.Uint32.AssertIsEqual(receipt.Fields[0].LogPos, receipt.Fields[1].LogPos)
 
-	// The second field exports `Volume` parameter from Transfer Event
-	// It should use Data in Transfer Event log
-	api.Uint248.AssertIsEqual(receipt.Fields[1].IsTopic, sdk.ConstUint248(0))
-	api.Uint248.AssertIsEqual(receipt.Fields[1].Index, sdk.ConstUint248(0))
+	// Check that the withdrawal address is correct
+	api.Uint248.AssertIsEqual(sdk.ConstUint248("0x21E2a892DDc9BD3c0466299172F8b1D8026925ED"), sdk.ConstUint248(withdrawalAddr))
 
-	// Make sure this transfer has minimum 500 USDC volume
-	api.Uint248.AssertIsLessOrEqual(minimumVolume, api.ToUint248(receipt.Fields[1].Value))
+	// // The second field exports `pubKey` of the validator
+	// api.Uint248.AssertIsEqual(receipt.Fields[1].IsTopic, sdk.ConstUint248(0))
+	// api.Uint248.AssertIsEqual(receipt.Fields[1].Index, sdk.ConstUint248(0))
 
-	api.OutputUint(64, api.ToUint248(receipt.BlockNum))
-	api.OutputAddress(api.ToUint248(receipt.Fields[0].Value))
-	api.OutputBytes32(receipt.Fields[1].Value)
-	fmt.Println("End of Defiiiiiine")
+	// // Make sure this transfer has minimum 500 USDC volume
+	// api.Uint248.AssertIsLessOrEqual(minimumVolume, api.ToUint248(receipt.Fields[1].Value))
+
+	// Output the withdrawal credentials
+	api.OutputBytes32(sdk.ConstFromBigEndianBytes(credentials))
+
 	return nil
 }
