@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"proof-generator/circuits"
 	"proof-generator/clients"
-	"proof-generator/functions"
 
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"
@@ -39,7 +39,7 @@ func main() {
 	}
 
 	// Generate the proof for all the validators on the pod
-	validatorProofs, oracleBeaconTimestamp, err := functions.GenerateValidatorProof(ctx, sympodAddr, eth, chainId, beaconClient, nil, true)
+	validatorProofs, oracleBeaconTimestamp, err := circuits.GenerateValidatorProof(ctx, sympodAddr, eth, chainId, beaconClient, nil, true)
 	if err != nil || validatorProofs == nil {
 		PanicOnError("Failed to generate validator proof", err)
 	}
