@@ -17,15 +17,9 @@ async function main() {
     // Listen to an event to verify withdrawal credentials
     sympodContract.on("VerificationRequired", async (pubkey, depositDataRoot, sympodAddr, event) => {
         console.log("VerificationRequired event received:");
-        console.log({
-            pubkey,
-            depositDataRoot,
-            sympodAddr,
-            blockNumber: event.blockNumber
-        });
 
         try {            
-            await processVerification(prover, brevis, pubkey, depositDataRoot, sympodAddr);
+            await processVerification(prover, brevis, pubkey, depositDataRoot, sympodAddr, event.transactionHash);
 
         } catch (error) {
             console.error("Error processing verification:", error);
@@ -36,11 +30,20 @@ async function main() {
 
 }
 
-async function processVerification(prover: Prover, brevis: Brevis, pubkey: string, depositDataRoot: string, sympodAddr: string) {
+async function processVerification(prover: Prover, brevis: Brevis, pubkey: string, depositDataRoot: string, sympodAddr: string, transactionHash: string) {
+    console.log('Processing verification with arguments:');
+    console.log('prover:', prover);
+    console.log('brevis:', brevis); 
+    console.log('pubkey:', pubkey);
+    console.log('depositDataRoot:', depositDataRoot);
+    console.log('sympodAddr:', sympodAddr);
+    console.log('transactionHash:', transactionHash);
+
     const proofReq = new ProofRequest();
 
     proofReq.addReceipt(
         new ReceiptData({
+            tx_hash: transactionHash,
             fields: [
                 // sympod address
                 new Field({
@@ -57,6 +60,8 @@ async function processVerification(prover: Prover, brevis: Brevis, pubkey: strin
             ],
         }),
     );
+
+    console.log('proofReq', proofReq);
 
     const proofRes = await prover.prove(proofReq);
     // error handling
